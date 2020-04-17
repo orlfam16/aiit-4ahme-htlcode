@@ -14,11 +14,11 @@ public class ConnectionHandler extends Thread {
     }
     
     public boolean isClosed() {
-        return true;
+        return true;//um Fehlermeldung zu verhindern
     }
     
     public boolean isMaster() {
-        return true;
+        return false; //um Fehlermeldung zu verhindern
     }
     
     
