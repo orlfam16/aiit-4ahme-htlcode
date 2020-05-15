@@ -17,6 +17,7 @@ public class Server {
     private final List<ConnectionHandler> handlers = new ArrayList<>();
     private long timeOffset;
     private long startMillis;
+    public Long count;
     
     public Server() {}
     
@@ -26,7 +27,7 @@ public class Server {
         
         while(true){
             final Socket clientSocket = serverSocket.accept();
-            //Überprüfen welche Handler geschlossen sind
+            //Überprüfen welche Handler geschlossen sind-------------------------
             
             if (handlers.size() < 3){
                 final ConnectionHandler handler = new ConnectionHandler(clientSocket);   
@@ -84,30 +85,34 @@ public class Server {
             try{
                 while(true){
                     final BufferedReader reader = new BufferedReader (new InputStreamReader(socket.getInputStream()));
-
                     final String line = reader.readLine(); //Zeichen werden in line gespeichert 
 
                     final Gson gson = new Gson();
                     gson.toJson(line);//die neuen Zeilen werden in ein Objekt gespeichert
+                    final Request req = gson.fromJson(line, Request.class); //neues Request Objekt, welches die Zeichen beinhaltet
+                    
+                    Gson gsonrsp = new Gson();
+                    Response rsp = gsonrsp.fromJson(line, Response.class);//neues Response Objekt wird erstellt
+                    count++;
+                    rsp.setCount(count);
 
-                    final Request r = gson.fromJson(line, Request.class); //neues Request Objekt, welches die Zeichen beinhaltet
 
-
-                    if(r.isMaster()){
+                    if(req.isMaster()){
                         for(ConnectionHandler c : handlers){
                             master = true;
                             if(c != this && c.isMaster() == true){
                                 master = false;
+                                //response zurücksenden--------------------------
                                 break;
                             }
                         }
                     }
 
-                    if (r.isStart()){
+                    if (req.isStart()){
                         startMillis = System.currentTimeMillis();
                     }
 
-                    if (r.isClear()){
+                    if (req.isClear()){
                         if(isTimeRunning()){
                             startMillis = System.currentTimeMillis();
                         }
@@ -115,19 +120,25 @@ public class Server {
                         timeOffset = 0;
                     }
 
-                    if(r.isStop()){
+                    if(req.isStop()){
                         timeOffset = getTimeMillis();
                         startMillis = 0;
                     }
 
-                    if (r.isEnd()){
+                    if (req.isEnd()){
 
                         handlers.remove(this);
-                        //ServerApplication schließen
+                        //ServerApplication schließen-----------------------------
+                        serverSocket.close();
                     }
                 }
             } catch(Exception ex){
                 ex.printStackTrace();
+                try{
+                    socket.close();
+                } catch(Exception ex1){
+                        socket.isClosed();
+                    }
             } 
         }
     }
@@ -213,12 +224,39 @@ public class Server {
         public Boolean running;
         public Long time;
         
+
+        public Boolean isMaster() {
+            return master;
+        }
         
-        
+        public Boolean isRunning() {
+            return running;
+        }
+
+        public Long getCount() {
+            return count;
+        }
+
+        public Long getTime() {
+            return time;
+        }
+
+        public void setMaster(Boolean master) {
+            this.master = master;
+        }
+
+        public void setCount(Long count) {
+            this.count = count;
+        }
+
+        public void setRunning(Boolean running) {
+            this.running = running;
+        }
+
+        public void setTime(Long time) {
+            this.time = time;
+        }
     }
-    
-    
-    
 }
 
 
