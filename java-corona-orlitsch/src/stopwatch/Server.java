@@ -2,9 +2,11 @@
 package stopwatch;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.Streams;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -17,17 +19,22 @@ public class Server {
     private final List<ConnectionHandler> handlers = new ArrayList<>();
     private long timeOffset;
     private long startMillis;
-    public Long count;
+    
     
     public Server() {}
     
     public void start(int port) throws IOException{
         serverSocket = new ServerSocket(port);
         timeOffset = 0;
+        startMillis = 0;
         
         while(true){
             final Socket clientSocket = serverSocket.accept();
-            //Überprüfen welche Handler geschlossen sind-------------------------
+            for(ConnectionHandler h: handlers){
+                if(h.isClosed()){
+                    handlers.remove(h);
+                }
+            }
             
             if (handlers.size() < 3){
                 final ConnectionHandler handler = new ConnectionHandler(clientSocket);   
@@ -81,25 +88,31 @@ public class Server {
     
         @Override
         public void run(){ //für die Hintergrundthreads
+            long count = 0;
             
             try{
                 while(true){
                     final BufferedReader reader = new BufferedReader (new InputStreamReader(socket.getInputStream()));
+                    final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
                     final String line = reader.readLine(); //Zeichen werden in line gespeichert 
-
+                    
+                    if(line == null){
+                        socket.close();
+                        return;
+                    }
+                    
+                    count++;
+                    
                     final Gson gson = new Gson();
                     gson.toJson(line);//die neuen Zeilen werden in ein Objekt gespeichert
+                    System.out.println(line);
                     final Request req = gson.fromJson(line, Request.class); //neues Request Objekt, welches die Zeichen beinhaltet
+                    System.out.println(req);
                     
-                    Gson gsonrsp = new Gson();
-                    Response rsp = gsonrsp.fromJson(line, Response.class);//neues Response Objekt wird erstellt
-                    count++;
-                    rsp.setCount(count);
-
-
+                    
                     if(req.isMaster()){
+                        master = true;
                         for(ConnectionHandler c : handlers){
-                            master = true;
                             if(c != this && c.isMaster() == true){
                                 master = false;
                                 //response zurücksenden--------------------------
@@ -107,38 +120,45 @@ public class Server {
                             }
                         }
                     }
-
-                    if (req.isStart()){
-                        startMillis = System.currentTimeMillis();
-                    }
-
-                    if (req.isClear()){
-                        if(isTimeRunning()){
+                    if(master){
+                        if (req.isStart()){
                             startMillis = System.currentTimeMillis();
                         }
 
-                        timeOffset = 0;
-                    }
+                        if (req.isClear()){
+                            if(isTimeRunning()){
+                                startMillis = System.currentTimeMillis();
+                            }
+                            timeOffset = 0;
+                        }
 
-                    if(req.isStop()){
-                        timeOffset = getTimeMillis();
-                        startMillis = 0;
-                    }
+                        if(req.isStop()){
+                            timeOffset = getTimeMillis();
+                            startMillis = 0;
+                        }
 
-                    if (req.isEnd()){
+                        if (req.isEnd()){
 
-                        handlers.remove(this);
-                        //ServerApplication schließen-----------------------------
-                        serverSocket.close();
+                            handlers.remove(this);
+                            //Server schließen-----------------------------
+                            serverSocket.close();
+                            socket.close();
+                            return;
+                        }
                     }
+                
+                    //Response
+                    final Response resp = new Response(master, count, isTimeRunning(), getTimeMillis());
+                    System.out.println(resp);
+                    final String respString = gson.toJson(resp);
+                    System.out.println(respString);
+                    writer.write(respString);
+                    writer.flush();
+               
                 }
+                
             } catch(Exception ex){
                 ex.printStackTrace();
-                try{
-                    socket.close();
-                } catch(Exception ex1){
-                        socket.isClosed();
-                    }
             } 
         }
     }
@@ -155,64 +175,31 @@ public class Server {
         
         
         public boolean isMaster(){
-            return master;
+            return master != null && master;
         }
         
         public boolean isStart(){
-            return start;
+            return start != null && start;
         }
         
         public boolean isStop(){
-            return stop;
+            return stop != null && stop;
         }
         
         public boolean isClear(){
-            return clear;
+            return clear != null && clear;
         }
         
         public boolean isEnd(){
-            return end;
+            return end != null && end;
         }
 
-        public void setMaster(Boolean master) {
-            this.master = master;
+        @Override
+        public String toString() {
+            return "Request{" + "master=" + master + ", start=" + start + ", stop=" + stop + ", clear=" + clear + ", end=" + end + '}';
         }
-
-        public void setStart(Boolean start) {
-            this.start = start;
-        }
-
-        public void setStop(Boolean stop) {
-            this.stop = stop;
-        }
-
-        public void setClear(Boolean clear) {
-            this.clear = clear;
-        }
-
-        public void setEnd(Boolean end) {
-            this.end = end;
-        }
-
-        public Boolean getMaster() {
-            return master;
-        }
-
-        public Boolean getStart() {
-            return start;
-        }
-
-        public Boolean getStop() {
-            return stop;
-        }
-
-        public Boolean getClear() {
-            return clear;
-        }
-
-        public Boolean getEnd() {
-            return end;
-        }  
+        
+        
     }
     
     //--------------------------------------------------------------------------
@@ -223,6 +210,14 @@ public class Server {
         public Long count;
         public Boolean running;
         public Long time;
+
+        private Response(boolean master, Long count, boolean timeRunning, long timeMillis) {
+            this.master = master;
+            this.count = count;
+            this.time = timeMillis;
+            this.running = timeRunning;
+            
+        }
         
 
         public Boolean isMaster() {
@@ -256,6 +251,12 @@ public class Server {
         public void setTime(Long time) {
             this.time = time;
         }
+
+        @Override
+        public String toString() {
+            return "Response{" + "master=" + master + ", count=" + count + ", running=" + running + ", time=" + time + '}';
+        }
+        
     }
 }
 
