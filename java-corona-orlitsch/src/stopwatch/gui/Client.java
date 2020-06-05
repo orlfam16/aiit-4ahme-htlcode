@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package stopwatch;
+package stopwatch.gui;
 
 /**
  *
@@ -40,6 +40,7 @@ public class Client extends javax.swing.JFrame {
         jSlider1 = new javax.swing.JSlider();
         jLabel2 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -53,6 +54,8 @@ public class Client extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 1;
+        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
         jPanel1.add(jBConnect, gridBagConstraints);
 
         jBDisconnect.setText("Disconnect");
@@ -117,6 +120,11 @@ public class Client extends javax.swing.JFrame {
         getContentPane().add(jPanel2, java.awt.BorderLayout.NORTH);
 
         jPanel3.setLayout(new javax.swing.OverlayLayout(jPanel3));
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 60)); // NOI18N
+        jLabel3.setText("0.000");
+        jPanel3.add(jLabel3);
+
         getContentPane().add(jPanel3, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -170,6 +178,7 @@ public class Client extends javax.swing.JFrame {
     private javax.swing.JButton jBStop;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
