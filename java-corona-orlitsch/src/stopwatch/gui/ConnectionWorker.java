@@ -1,26 +1,36 @@
 package stopwatch.gui;
 
+import java.net.Socket;
 import java.util.List;
 import javax.swing.SwingWorker;
+import stopwatch.Server.Request;
+import stopwatch.Server.Response;
+import java.io.IOException;
 
 
-public class ConnectionWorker extends SwingWorker {
+public class ConnectionWorker extends SwingWorker<String, Integer>{
+    
+    private Socket socket;
+    
 
-    public ConnectionWorker() {
+    public ConnectionWorker(int port, String hostName) {
+        
     }
 
     @Override
-    protected Object doInBackground() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected String doInBackground() throws Exception{
+         System.out.println("Do in Background" + Thread.currentThread().getId());
+         Thread.sleep(1000);
+         
+         publish(1);
+       
+         Thread.sleep(1000);
+         
+         publish(2);
+         
+         Thread.sleep(1000);
+        return "OK";
+
     }
 
-    @Override
-    protected void done() {
-        super.done(); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    protected void process(List chunks) {
-        super.process(chunks); //To change body of generated methods, choose Tools | Templates.
-    }
 }

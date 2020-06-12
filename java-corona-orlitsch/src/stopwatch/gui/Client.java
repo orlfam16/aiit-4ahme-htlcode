@@ -5,6 +5,12 @@
  */
 package stopwatch.gui;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import stopwatch.Server;
+
 /**
  *
  * @author USER
@@ -15,7 +21,15 @@ public class Client extends javax.swing.JFrame {
      * Creates new form Client
      */
     public Client() {
+        
+        
         initComponents();
+        jBClear.setVisible(false);
+        jBDisconnect.setVisible(false);
+        jBEnd.setVisible(false);
+        jBStart.setVisible(false);
+        jBStop.setVisible(false);
+        jBConnect.setVisible(true);
     }
 
     /**
@@ -47,71 +61,112 @@ public class Client extends javax.swing.JFrame {
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         jBConnect.setText("Connect");
+        jBConnect.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jBConnect.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jBConnect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jBConnectActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 5, 2);
         jPanel1.add(jBConnect, gridBagConstraints);
 
         jBDisconnect.setText("Disconnect");
+        jBDisconnect.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jBDisconnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBDisconnectActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.ipady = 1;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 5, 2);
         jPanel1.add(jBDisconnect, gridBagConstraints);
 
         jBStart.setText("Start");
+        jBStart.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jBStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBStartActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.ipady = 1;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 5, 2);
         jPanel1.add(jBStart, gridBagConstraints);
 
         jBStop.setText("Stop");
+        jBStop.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jBStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBStopActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.ipady = 1;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 6;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 5, 2);
         jPanel1.add(jBStop, gridBagConstraints);
 
         jBClear.setText("Clear");
+        jBClear.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jBClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBClearActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.ipady = 1;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 5, 2);
         jPanel1.add(jBClear, gridBagConstraints);
 
         jBEnd.setText("End");
+        jBEnd.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jBEnd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBEndActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.ipady = 1;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 5, 2);
         jPanel1.add(jBEnd, gridBagConstraints);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.EAST);
 
         jLabel1.setText("Refreshrate: 1s");
         jPanel2.add(jLabel1);
+
+        jSlider1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jSlider1.setName(""); // NOI18N
+        jSlider1.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                jSlider1MouseWheelMoved(evt);
+            }
+        });
         jPanel2.add(jSlider1);
 
         jLabel2.setText("1ms");
@@ -119,11 +174,12 @@ public class Client extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, java.awt.BorderLayout.NORTH);
 
-        jPanel3.setLayout(new javax.swing.OverlayLayout(jPanel3));
+        jPanel3.setLayout(new java.awt.GridBagLayout());
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 60)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Source Sans Pro Black", 0, 100)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("0.000");
-        jPanel3.add(jLabel3);
+        jPanel3.add(jLabel3, new java.awt.GridBagConstraints());
 
         getContentPane().add(jPanel3, java.awt.BorderLayout.CENTER);
 
@@ -131,8 +187,34 @@ public class Client extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBConnectActionPerformed
-        // TODO add your handling code here:
+        System.out.println("Button pressed" + Thread.currentThread().getId());
+        ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
+        worker.execute();
     }//GEN-LAST:event_jBConnectActionPerformed
+
+    private void jSlider1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_jSlider1MouseWheelMoved
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jSlider1MouseWheelMoved
+
+    private void jBDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDisconnectActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jBDisconnectActionPerformed
+
+    private void jBStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBStartActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jBStartActionPerformed
+
+    private void jBStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBStopActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jBStopActionPerformed
+
+    private void jBClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBClearActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jBClearActionPerformed
+
+    private void jBEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBEndActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jBEndActionPerformed
 
     /**
      * @param args the command line arguments
@@ -168,6 +250,40 @@ public class Client extends javax.swing.JFrame {
             }
         });
     }
+    
+    private class MyConnectionWorker extends ConnectionWorker{
+        
+        public MyConnectionWorker(int port, String hostName) {
+            super(port, hostName);
+        }
+
+        @Override
+        protected void done() {
+           
+            
+            try {
+                String ergebnis = get();
+                System.out.println(ergebnis + " " + Thread.currentThread().getId());
+                jLabel3.setText(ergebnis);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            
+            
+        
+        }
+
+        @Override
+        protected void process(List<Integer> chunks) {
+            for(int x : chunks){
+                System.out.println("Process " + x + " Thread " + Thread.currentThread().getId());
+            }
+        }
+        
+        
+        
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBClear;
