@@ -5,11 +5,18 @@
  */
 package stopwatch.gui;
 
+import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import stopwatch.Server;
+import stopwatch.Server.Response;
 
 /**
  *
@@ -21,8 +28,7 @@ public class Client extends javax.swing.JFrame {
      * Creates new form Client
      */
     public Client() {
-        
-        
+
         initComponents();
         jBClear.setVisible(false);
         jBDisconnect.setVisible(false);
@@ -187,9 +193,13 @@ public class Client extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBConnectActionPerformed
-        System.out.println("Button pressed" + Thread.currentThread().getId());
-        ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
-        worker.execute();
+        try {
+            System.out.println("Button pressed" + Thread.currentThread().getId());
+            ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
+            worker.execute();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_jBConnectActionPerformed
 
     private void jSlider1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_jSlider1MouseWheelMoved
@@ -250,17 +260,50 @@ public class Client extends javax.swing.JFrame {
             }
         });
     }
-    
-    private class MyConnectionWorker extends ConnectionWorker{
-        
-        public MyConnectionWorker(int port, String hostName) {
-            super(port, hostName);
+
+    private class MyConnectionWorker extends ConnectionWorker {
+
+        private Response resp;
+        private Socket socket;
+
+        public MyConnectionWorker(int port, String host) throws IOException {
+            socket = new Socket(host, port);
+        }
+
+        @Override
+        protected String doInBackground() throws Exception {
+            final Gson g = new Gson();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+            while (true) {
+                try {
+                    //final Request req = new Request();
+                    final String reqString = g.toJson(req);
+                    writer.write(reqString);
+                    writer.flush();
+
+                    final String respString = reader.readLine();
+                    final Response resp = g.fromJson(respString, Response.class);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+//        System.out.println("Do in Background " + Thread.currentThread().getId());
+//        Thread.sleep(1000);
+//
+//        publish(1);
+//
+//        Thread.sleep(1000);
+//
+//        publish(2);
+//
+//        Thread.sleep(1000);
         }
 
         @Override
         protected void done() {
-           
-            
+
             try {
                 String ergebnis = get();
                 System.out.println(ergebnis + " " + Thread.currentThread().getId());
@@ -268,22 +311,31 @@ public class Client extends javax.swing.JFrame {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            
-            
-        
+
         }
 
         @Override
-        protected void process(List<Integer> chunks) {
-            for(int x : chunks){
-                System.out.println("Process " + x + " Thread " + Thread.currentThread().getId());
+        protected void process(List<Response> list) {
+            Response resp = list.get(0);
+
+            if (resp.isMaster()) {
+                jBClear.setVisible(true);
+                jBDisconnect.setVisible(true);
+                jBEnd.setVisible(true);
+                jBStart.setVisible(true);
+                jBStop.setVisible(true);
+                jBConnect.setVisible(false);
+
+//            for(int x : chunks){
+//                System.out.println("Process " + x + " Thread " + Thread.currentThread().getId());
+            }
+
+            if (resp.isRunning()) {
+                jLabel3.setText(String.format("%.3f", resp.getTime()));
             }
         }
-        
-        
-        
     }
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBClear;
