@@ -23,7 +23,11 @@ import stopwatch.Server.Response;
  * @author USER
  */
 public class Client extends javax.swing.JFrame {
-
+    
+    private boolean tryToStart;
+    private boolean tryToStop;
+    private boolean tryToClear;
+    private boolean tryToEnd;
     /**
      * Creates new form Client
      */
@@ -211,19 +215,19 @@ public class Client extends javax.swing.JFrame {
     }//GEN-LAST:event_jBDisconnectActionPerformed
 
     private void jBStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBStartActionPerformed
-        // TODO add your handling code here:
+        tryToStart = true;
     }//GEN-LAST:event_jBStartActionPerformed
 
     private void jBStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBStopActionPerformed
-        // TODO add your handling code here:
+        tryToStop = true;
     }//GEN-LAST:event_jBStopActionPerformed
 
     private void jBClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBClearActionPerformed
-        // TODO add your handling code here:
+        tryToClear = true;
     }//GEN-LAST:event_jBClearActionPerformed
 
     private void jBEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBEndActionPerformed
-        // TODO add your handling code here:
+        tryToEnd = true;
     }//GEN-LAST:event_jBEndActionPerformed
 
     /**
@@ -281,6 +285,11 @@ public class Client extends javax.swing.JFrame {
                     final String reqString = g.toJson(req);
                     writer.write(reqString);
                     writer.flush();
+                    
+                    tryToStart = false;
+                    tryToStop = false;
+                    tryToClear = false;
+                    tryToEnd = false;
 
                     final String respString = reader.readLine();
                     final Response resp = g.fromJson(respString, Response.class);
