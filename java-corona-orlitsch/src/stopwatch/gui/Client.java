@@ -5,17 +5,10 @@
  */
 package stopwatch.gui;
 
-import com.google.gson.Gson;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import stopwatch.Server;
+import javax.swing.JOptionPane;
 import stopwatch.Server.Response;
 
 /**
@@ -23,11 +16,12 @@ import stopwatch.Server.Response;
  * @author USER
  */
 public class Client extends javax.swing.JFrame {
-    
+
     private boolean tryToStart;
     private boolean tryToStop;
     private boolean tryToClear;
     private boolean tryToEnd;
+
     /**
      * Creates new form Client
      */
@@ -203,6 +197,7 @@ public class Client extends javax.swing.JFrame {
             worker.execute();
         } catch (IOException ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Verbindung Fehlgeschlagen!");
         }
     }//GEN-LAST:event_jBConnectActionPerformed
 
@@ -267,47 +262,10 @@ public class Client extends javax.swing.JFrame {
 
     private class MyConnectionWorker extends ConnectionWorker {
 
-        private Response resp;
         private Socket socket;
 
         public MyConnectionWorker(int port, String host) throws IOException {
             socket = new Socket(host, port);
-        }
-
-        @Override
-        protected String doInBackground() throws Exception {
-            final Gson g = new Gson();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-            while (true) {
-                try {
-                    //final Request req = new Request();
-                    final String reqString = g.toJson(req);
-                    writer.write(reqString);
-                    writer.flush();
-                    
-                    tryToStart = false;
-                    tryToStop = false;
-                    tryToClear = false;
-                    tryToEnd = false;
-
-                    final String respString = reader.readLine();
-                    final Response resp = g.fromJson(respString, Response.class);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-//        System.out.println("Do in Background " + Thread.currentThread().getId());
-//        Thread.sleep(1000);
-//
-//        publish(1);
-//
-//        Thread.sleep(1000);
-//
-//        publish(2);
-//
-//        Thread.sleep(1000);
         }
 
         @Override
@@ -319,6 +277,7 @@ public class Client extends javax.swing.JFrame {
                 jLabel3.setText(ergebnis);
             } catch (Exception ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(Client.this, "Fehler beim Beenden", "Fahler", JOptionPane.ERROR_MESSAGE);
             }
 
         }
@@ -327,13 +286,32 @@ public class Client extends javax.swing.JFrame {
         protected void process(List<Response> list) {
             Response resp = list.get(0);
 
-            if (resp.isMaster()) {
-                jBClear.setVisible(true);
-                jBDisconnect.setVisible(true);
-                jBEnd.setVisible(true);
-                jBStart.setVisible(true);
-                jBStop.setVisible(true);
-                jBConnect.setVisible(false);
+            for (Response r : list) {
+                if (r.isMaster()) {
+                    jBClear.setVisible(true);
+                    jBDisconnect.setVisible(true);
+                    jBEnd.setVisible(true);
+                    jBStart.setVisible(true);
+                    jBStop.setVisible(true);
+                    jBConnect.setVisible(false);
+                } else {
+                    jBClear.setVisible(false);
+                    jBDisconnect.setVisible(true);
+                    jBEnd.setVisible(false);
+                    jBStart.setVisible(false);
+                    jBStop.setVisible(false);
+                    jBConnect.setVisible(false);
+                }
+
+                if (r.isRunning()) {
+                    jBClear.setVisible(true);
+                    jBStart.setVisible(false);
+                    jBStop.setVisible(true);
+                } else {
+                    jBClear.setVisible(false);
+                    jBStart.setVisible(true);
+                    jBStop.setVisible(false);
+                }
 
 //            for(int x : chunks){
 //                System.out.println("Process " + x + " Thread " + Thread.currentThread().getId());
