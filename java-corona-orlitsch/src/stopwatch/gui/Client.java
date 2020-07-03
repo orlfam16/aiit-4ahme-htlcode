@@ -197,7 +197,7 @@ public class Client extends javax.swing.JFrame {
             worker.execute();
         } catch (IOException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Verbindung Fehlgeschlagen!");
+            JOptionPane.showMessageDialog(this, "Verbindung Fehlgeschlagen");
         }
     }//GEN-LAST:event_jBConnectActionPerformed
 
